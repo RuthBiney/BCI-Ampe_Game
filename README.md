@@ -77,7 +77,7 @@ Connect an EEG headset (e.g., OpenBCI Ganglion or Emotiv Epoc).
 
 Run the Streamlit app and guide users through the process of playing the Ampe game using their brain signals.
 
-Collect feedback and refine the system based on user input. -->  We Might not be using the EEG headset for the testing.
+Collect feedback and refine the system based on user input. -->  We Might not be using the EEG headset for the testing or maybe we might but it depends.
 
 Deployment
 Local Deployment
