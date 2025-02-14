@@ -1,5 +1,7 @@
 Hybrid CNN-RNN for EEG-Based Ampe Game
+
 Overview
+
 This project develops a Brain-Computer Interface (BCI) system for motor imagery classification using a hybrid CNN-RNN model. The system is integrated with the traditional Ghanaian game Ampe, enabling users to control the game using their brain signals. The project leverages publicly available EEG datasets, deep learning frameworks, and open-source tools to create a low-cost and accessible solution for motor imagery classification.
 
 Features
