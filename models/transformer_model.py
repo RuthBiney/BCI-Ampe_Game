@@ -11,11 +11,11 @@ from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Flatten, Dense,
 print("🔄 Loading EEG dataset...")
 
 # Load GDF file using MNE
-data_path = "../BCICIV_2a_gdf/A01E.gdf"  # Ensure the correct path
+data_path = "../BCICIV_2a_gdf/A01E.gdf"  
 raw = mne.io.read_raw_gdf(data_path, preload=True)
 
 # Extract EEG signals & events
-raw.filter(0.5, 40, fir_design='firwin')  # Apply band-pass filter
+raw.filter(0.5, 40, fir_design='firwin')  
 events, event_id = mne.events_from_annotations(raw)
 
 # Handle repeated events by dropping duplicates
