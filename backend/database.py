@@ -1,37 +1,29 @@
 import sqlite3
 
-# ✅ Create Database
-conn = sqlite3.connect("eeg_data.db")
-cursor = conn.cursor()
+def init_db():
+    conn = sqlite3.connect('ampe_bci.db')
+    cursor = conn.cursor()
 
-# ✅ Create Tables
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)
-""")
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS predictions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_name TEXT NOT NULL,
+            movement TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            signal TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS eeg_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    raw_signal BLOB,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-)
-""")
+def save_prediction(file_name, movement, score, signal):
+    conn = sqlite3.connect('ampe_bci.db')
+    cursor = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS predictions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    eeg_data_id INTEGER,
-    predicted_movement TEXT,
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(eeg_data_id) REFERENCES eeg_data(id)
-)
-""")
+    cursor.execute('''
+        INSERT INTO predictions (file_name, movement, score, signal)
+        VALUES (?, ?, ?, ?)
+    ''', (file_name, movement, score, str(signal)))
 
-conn.commit()
-conn.close()
-print("✅ Database setup complete!")
+    conn.commit()
+    conn.close()
