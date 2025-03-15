@@ -19,12 +19,18 @@ print(f"🔄 Loading Transformer model from {MODEL_PATH} ...")
 model = load_model(MODEL_PATH)
 print("✅ Model loaded successfully.")
 
+# Movement type mapping
+movement_types = {
+    0: "Left Hand Movement",
+    1: "Right Hand Movement",
+    2: "Both Feet Movement",
+    3: "Tongue Movement"
+}
 
 # ✅ Home Route to Avoid 404 Errors
 @app.route('/')
 def home():
     return "🚀 EEG Transformer API is Running! Use /predict to make predictions."
-
 
 # ✅ Prediction Route
 @app.route('/predict', methods=['POST'])
@@ -61,11 +67,21 @@ def predict():
             eeg_data = eeg_data[:, :n_segments * segment_length].reshape(n_channels, n_segments, segment_length)
             eeg_data = eeg_data.transpose(1, 0, 2)[..., np.newaxis]
 
+            # Debugging: Print shape of EEG data
+            print(f"EEG data shape for {filename}: {eeg_data.shape}")
+
             # ✅ Make Predictions
             preds = model.predict(eeg_data)
             pred_scores = preds.mean(axis=0)
             predicted_class = int(np.argmax(pred_scores))
             confidence_score = float(pred_scores[predicted_class])
+            movement_type = movement_types.get(predicted_class, "Unknown Movement")
+
+            # Debugging: Print prediction scores
+            print(f"Prediction scores for {filename}: {pred_scores}")
+            print(f"Predicted class for {filename}: {predicted_class}")
+            print(f"Confidence score for {filename}: {confidence_score}")
+            print(f"Movement type for {filename}: {movement_type}")
 
             # ✅ Generate Signal Visualization
             fig, ax = plt.subplots(figsize=(10, 3))
@@ -81,6 +97,7 @@ def predict():
                 "filename": filename,
                 "predicted_class": predicted_class,
                 "confidence_score": round(confidence_score, 4),
+                "movement_type": movement_type,
                 "signal_visualization": img_base64
             })
 
@@ -89,8 +106,8 @@ def predict():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+    print(f"Results: {results}")  # Debugging statement to check the results
     return jsonify({"results": results}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True)
