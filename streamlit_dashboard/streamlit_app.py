@@ -34,17 +34,17 @@ if uploaded_file is not None:
     fig = px.line(df_subset, title="EEG Signal (First 1000 Time Points)")
     st.plotly_chart(fig)
 
-    # ✅ Load CNN-RNN Model & Compile
-    model_path = "../backend/model/eeg_cnn_rnn_model.h5"
+    # ✅ Load Transformer Model & Compile
+    model_path = "../backend/model/eeg_transformer_model.keras"
     try:
         model = load_model(model_path)
         model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])  # ✅ Fix: Compile Model
     except FileNotFoundError:
-        st.error("❌ Model file not found. Ensure it's at '../backend/model/eeg_cnn_rnn_model.h5'.")
+        st.error("❌ Model file not found. Ensure it's at '../backend/model/eeg_transformer_model.keras'.")
         st.stop()
 
     # ✅ Preprocess EEG Data for Model
-    segment_length = 251  # Time points per segment (match model input)
+    segment_length = 1000  # Time points per segment (match model input)
     n_segments = eeg_data.shape[1] // segment_length  # Compute number of segments
 
     # Ensure we have at least one valid segment
@@ -52,7 +52,7 @@ if uploaded_file is not None:
         st.error("❌ Not enough EEG data for processing. Ensure the recording is long enough.")
         st.stop()
 
-    # Reshape into (n_segments, 25, 251, 1)
+    # Reshape into (n_segments, 25, 1000, 1)
     eeg_data_segments = np.array(np.split(eeg_data[:, :n_segments * segment_length], n_segments, axis=1))
     eeg_data_segments = eeg_data_segments.reshape(n_segments, 25, segment_length, 1)
 
@@ -63,6 +63,9 @@ if uploaded_file is not None:
         pred = model.predict(segment)
         predictions.append(np.argmax(pred))
 
+        # Debugging: Print raw prediction scores
+        st.write(f"Raw prediction scores for segment: {pred}")
+
     # ✅ Ensure Predictions Are Valid
     if len(predictions) == 0:
         st.error("❌ No valid predictions found. Check EEG data format.")
@@ -71,7 +74,7 @@ if uploaded_file is not None:
     # ✅ Handle Invalid Predictions
     try:
         final_prediction = np.bincount(predictions).argmax()  # Majority voting
-        movements = ["Jump", "Clap", "Stomp"]
+        movements = ["Left Hand Movement", "Right Hand Movement", "Both Feet Movement", "Tongue Movement"]
         
         if final_prediction >= len(movements):  # Avoid index out of range
             st.error(f"❌ Invalid prediction index: {final_prediction}.")
@@ -81,3 +84,4 @@ if uploaded_file is not None:
         st.error("❌ Unable to determine prediction. Please retry with valid EEG data.")
 
     st.success("✅ EEG Processing Complete!")
+    
