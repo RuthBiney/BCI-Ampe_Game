@@ -49,59 +49,64 @@ def predict():
 
         try:
             # ✅ Process EEG Data
-            processor = EEGProcessor(file_path)
-            processor.load_data()
-            processor.preprocess()
-
-            eeg_data, labels = processor.get_data_and_labels()
-            if eeg_data is None or not labels:
-                return jsonify({"error": f"No valid EEG data found in {filename}."}), 400
+            raw = mne.io.read_raw_gdf(file_path, preload=True)
+            eeg_data = raw.get_data(picks="eeg")  # Shape: (n_channels, n_times)
+            if eeg_data.shape[0] > 25:  # Ensure we only keep the first 25 channels
+                eeg_data = eeg_data[:25, :]
 
             # ✅ Preprocess EEG for Model
-            eeg_data = mne.filter.filter_data(eeg_data, sfreq=processor.raw.info['sfreq'], l_freq=8, h_freq=30)
-            eeg_data = (eeg_data - np.mean(eeg_data, axis=1, keepdims=True)) / np.std(eeg_data, axis=1, keepdims=True)
+            segment_length = 1000  # Time points per segment (match model input)
+            n_segments = eeg_data.shape[1] // segment_length  # Compute number of segments
 
-            segment_length = 1000
-            n_channels, n_times = eeg_data.shape
-            n_segments = n_times // segment_length
-            eeg_data = eeg_data[:, :n_segments * segment_length].reshape(n_channels, n_segments, segment_length)
-            eeg_data = eeg_data.transpose(1, 0, 2)[..., np.newaxis]
+            # Ensure we have at least one valid segment
+            if n_segments == 0:
+                return jsonify({"error": f"Not enough EEG data for processing in {filename}."}), 400
 
-            # Debugging: Print shape of EEG data
-            print(f"EEG data shape for {filename}: {eeg_data.shape}")
+            # Reshape into (n_segments, 25, 1000, 1)
+            eeg_data_segments = np.array(np.split(eeg_data[:, :n_segments * segment_length], n_segments, axis=1))
+            eeg_data_segments = eeg_data_segments.reshape(n_segments, 25, segment_length, 1)
 
-            # ✅ Make Predictions
-            preds = model.predict(eeg_data)
-            pred_scores = preds.mean(axis=0)
-            predicted_class = int(np.argmax(pred_scores))
-            confidence_score = float(pred_scores[predicted_class])
-            movement_type = movement_types.get(predicted_class, "Unknown Movement")
+            # ✅ Predict Movements
+            predictions = []
+            for segment in eeg_data_segments:
+                segment = segment[np.newaxis, :, :, :]  # Add batch dimension
+                pred = model.predict(segment)
+                predictions.append(np.argmax(pred))
 
-            # Debugging: Print prediction scores
-            print(f"Prediction scores for {filename}: {pred_scores}")
-            print(f"Predicted class for {filename}: {predicted_class}")
-            print(f"Confidence score for {filename}: {confidence_score}")
-            print(f"Movement type for {filename}: {movement_type}")
+                # Debugging: Print raw prediction scores
+                print(f"Raw prediction scores for segment: {pred}")
 
-            # ✅ Generate Signal Visualization
-            fig, ax = plt.subplots(figsize=(10, 3))
-            ax.plot(eeg_data[0].squeeze())
-            ax.set_title(f"EEG Signal for {filename}")
-            buf = io.BytesIO()
-            plt.savefig(buf, format="png")
-            buf.seek(0)
-            img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-            plt.close()
+            # ✅ Ensure Predictions Are Valid
+            if len(predictions) == 0:
+                return jsonify({"error": f"No valid predictions found in {filename}."}), 400
 
-            results.append({
-                "filename": filename,
-                "predicted_class": predicted_class,
-                "confidence_score": round(confidence_score, 4),
-                "movement_type": movement_type,
-                "signal_visualization": img_base64
-            })
+            # ✅ Handle Invalid Predictions
+            try:
+                final_prediction = int(np.bincount(predictions).argmax())  # Majority voting
+                movement_type = movement_types.get(final_prediction, "Unknown Movement")
 
-            os.remove(file_path)  # Clean up temporary file
+                # ✅ Generate Signal Visualization
+                fig, ax = plt.subplots(figsize=(10, 3))
+                ax.plot(eeg_data[0].squeeze())
+                ax.set_title(f"EEG Signal for {filename}")
+                buf = io.BytesIO()
+                plt.savefig(buf, format="png")
+                buf.seek(0)
+                img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+                plt.close()
+
+                results.append({
+                    "filename": filename,
+                    "predicted_class": final_prediction,
+                    "confidence_score": float(round(pred.mean(), 4)),  # Convert to standard Python float
+                    "movement_type": movement_type,
+                    "signal_visualization": f"data:image/png;base64,{img_base64}"  # Add data URI scheme
+                })
+
+                os.remove(file_path)  # Clean up temporary file
+
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
