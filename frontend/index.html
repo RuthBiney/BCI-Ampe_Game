@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ampe BCI Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="game-container">
+      <h1>🎮 Ampe BCI Game</h1>
+      <button id="start-btn">Start Game</button>
+
+      <div id="game-area" style="display: none">
+        <h2>🧠 Predicted Movement: <span id="movement">Waiting...</span></h2>
+        <h3>🏆 Score: <span id="score">0</span></h3>
+        <input type="file" id="eeg-upload" multiple />
+        <button id="predict-btn">Predict Movement</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
