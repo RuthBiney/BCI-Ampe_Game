@@ -112,3 +112,5 @@ TensorFlow and Keras for deep learning model development.
 Streamlit for building the user interface.
 
 MNE-Python for EEG signal processing.
+
+video link https://drive.google.com/file/d/1c2b_xo-h9hA1XedOgvFnrVwZ3h7rhbEm/view?usp=drive_link
