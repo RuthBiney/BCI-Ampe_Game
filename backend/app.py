@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from classes import EEGProcessor
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+
+CORS(app)  # Allow CORS for all routes
 
 # Increase Flask's File Upload Limit to 100MB
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  
