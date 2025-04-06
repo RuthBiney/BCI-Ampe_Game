@@ -1,116 +1,135 @@
-Hybrid CNN-RNN for EEG-Based Ampe Game
+**Brain-Computer Interface for Motor Imagery**
+This project is a Brain-Computer Interface (BCI) system designed to classify EEG signals captured during motor imagery tasks. Using deep learning techniques, the system interprets user brainwave data and predicts the type of imagined movement in near real-time. The goal is to facilitate intuitive human-computer interaction for applications in assistive technology, neuroscience, and neurofeedback systems.
 
-Overview
+**Features**
+🔐 User registration and login with input validation
 
-This project develops a Brain-Computer Interface (BCI) system for motor imagery classification using a hybrid CNN-RNN model. The system is integrated with the traditional Ghanaian game Ampe, enabling users to control the game using their brain signals. The project leverages publicly available EEG datasets, deep learning frameworks, and open-source tools to create a low-cost and accessible solution for motor imagery classification.
+📤 EEG data upload for classification (.gdf files from BCI Competition IV-2a)
 
-Features
-Hybrid CNN-RNN Model: Combines Convolutional Neural Networks (CNNs) for spatial feature extraction and Recurrent Neural Networks (RNNs) for temporal dependencies in EEG signals.
+⚙️ Real-time processing and prediction of motor imagery tasks
 
-Ampe Game Integration: Allows users to control the traditional Ghanaian game Ampe using motor imagery (e.g., imagining hand claps or foot stomps).
+📈 Display of classification confidence and visual output
 
-Real-Time Classification: Classifies EEG signals in real-time with low latency.
+🖥️ Responsive and intuitive web frontend
 
-User-Friendly Interface: Built using Streamlit for an interactive and intuitive user experience.
+🤖 Deep learning model trained on multi-class EEG signals
 
-Open-Source: All code and documentation are publicly available for further research and development.
+✅ Multiple EEG file upload support
 
-Installation
-To set up the project locally, follow these steps:
+🧪 Testing and performance evaluation (Precision: 0.8289 | Recall: 0.8291 | F1-score: 0.8287)
 
-1. Clone the Repository
-   git https://github.com/RuthBiney/BCI-Ampe_Game.git
+BCI-Motor-Imagery/
+│
+├── backend/ # Python backend with model, APIs, preprocessing
+│ ├── model/ # Trained transformer-based model
+│ ├── datasetfolder/ # EEG .gdf files
+│ ├── preprocessing/ # Signal processing scripts
+│ └── app.py # Flask or FastAPI app for API endpoints
+│
+├── frontend/ # HTML, CSS, JavaScript frontend
+│ ├── index.html # Landing page
+│ ├── signup.html # Sign up page
+│ ├── login.html # Login page
+│ ├── data_input.html # EEG data upload page
+│ └── result.html # Prediction output display
+│
+├── requirements.txt # Python dependencies
+└── README.md # Project documentation
 
-2. Install Dependencies
-   Install the required Python libraries using pip:
-   pip install -r requirements.txt
+**Tech Stack**
+Frontend:
 
-3. Download the Dataset
-<!-- Have to replace with the Actual Ampe Dataset I'm working on.  -->
+Typescript, React
 
-Usage
+Animations and transitions for user interaction
 
-1. Preprocess the EEG Data
-   Run the preprocessing script to clean and prepare the EEG data:
-   python preprocess.py
+Backend:
 
-This script performs the following steps:
-Filters the raw EEG signals (e.g., bandpass filter between 7–30 Hz).
-Normalizes the data.
-Segments the data into time windows (e.g., 1-second windows at 128 Hz).
+Python 3.x
 
-2. Train the Model
-   Train the hybrid CNN-RNN model using the preprocessed data:
-   python train.py
+Flask or FastAPI (for API endpoints)
 
-This script:
-Loads the preprocessed data.
-Defines and compiles the hybrid CNN-RNN model.
-Trains the model and saves it to models/hybrid_cnn_rnn_model.h5.
+NumPy, SciPy, MNE (EEG processing)
 
-3. Run the Streamlit App
-   Start the Streamlit app to interact with the Ampe game:
-   streamlit run ampe_game.py
+PyTorch (for model training and inference)
 
-The app will open in your browser, allowing you to:
-Simulate EEG data input.
-Predict motor imagery tasks (e.g., left hand, right hand, foot).
-Control the Ampe game using the predicted actions.
+Model:
 
-Model Architecture
-The hybrid CNN-RNN model consists of the following layers:
-Input Layer:
-Reshapes the EEG data for CNN input.
-CNN Layers:
-Conv2D (32 filters, 3x3 kernel, ReLU activation).
-MaxPooling2D (2x2 window).
-Flatten.
-RNN Layers:
-LSTM (64 units, return sequences).
-LSTM (32 units).
-Output Layer:
-Dense (4 units, softmax activation for 4 classes).
+Transformer-based neural network
 
-Testing with Local Users
+Trained on BCI Competition IV-2a dataset
 
-<!-- To test the system with real users:
+**🚀 Installation**
+Clone the Repository
+git clone https://github.com/RuthBiney/BCI-Ampe_Game.git
+cd BCI-Motor-Imagery
 
-Connect an EEG headset (e.g., OpenBCI Ganglion or Emotiv Epoc).
+**Create a Python Virtual Environment**
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
-Run the Streamlit app and guide users through the process of playing the Ampe game using their brain signals.
+**Install Dependencies**
+pip install -r backend/requirements.txt
 
-Collect feedback and refine the system based on user input. -->  We Might not be using the EEG headset for the testing or maybe we might but it depends.
+**Run Backend Server**
+cd backend
+python app.py
 
-Deployment
-Local Deployment
-Run the Streamlit app locally:
-streamlit run ampe_game.py
+**Model Details**
+Architecture: Transformer with temporal attention
 
-Cloud Deployment
-Deploy the app on a cloud platform like Streamlit Sharing or Heroku:
+Dataset: BCI Competition IV-2a
 
-Streamlit Sharing:
+Input Features: EEG time-series signals from 22 channels
 
-Upload the code to GitHub and connect the repository to Streamlit Sharing.
+Output: 4-class classification (left hand, right hand, feet, tongue)
 
-<!-- Contributing
-Contributions are welcome! To contribute to this project:
+Evaluation Metrics:
 
-Fork the repository.
+Precision: 0.8289
 
-Create a new branch for your feature or bug fix.
+Recall: 0.8291
 
-Submit a pull request with a detailed description of your changes. -->
+F1-score: 0.8287
 
-License
-This project is licensed under the MIT License.
+Confusion Matrix included in results analysis
 
-Acknowledgments
+**✅ Testing Summary**
+Validation Testing:
 
-TensorFlow and Keras for deep learning model development.
+100% detection of invalid email format
 
-Streamlit for building the user interface.
+Required fields flagged when empty
 
-MNE-Python for EEG signal processing.
+Password length and confirmation validations enforced
 
-video link https://drive.google.com/file/d/1c2b_xo-h9hA1XedOgvFnrVwZ3h7rhbEm/view?usp=drive_link
+Integration Testing:
+
+Uploading files triggers instant predictions
+
+Prediction output is properly linked to file and session
+
+Responsive error messages shown when file is invalid
+
+Functional/System Testing:
+
+Real-time predictions delivered within ~2 seconds
+
+Model robust to different EEG samples
+
+Clean UI navigation between pages
+
+Acceptance Testing:
+
+Users found the UI intuitive and smooth
+
+Minor improvements suggested for responsiveness on smaller screens
+
+**Acknowledgements**
+BCI Competition IV-2a for providing the dataset
+
+Open-source contributors to MNE, PyTorch, and EEG toolkits
+
+Mentors and faculty who provided feedback during the project
+
+Everyone who tested and reviewed the interface
