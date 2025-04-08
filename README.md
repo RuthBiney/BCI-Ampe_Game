@@ -71,6 +71,10 @@ source venv/bin/activate # On Windows: venv\Scripts\activate
 **Install Dependencies**
 pip install -r backend/requirements.txt
 
+**Run models**
+python transformer_model.py
+python train_model.py
+
 **Run Backend Server**
 cd backend
 python app.py
